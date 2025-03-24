@@ -1,7 +1,9 @@
+import io.appium.java_client.AppiumBy;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.android.options.UiAutomator2Options;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.PointerInput;
 import org.openqa.selenium.interactions.Sequence;
 import org.testng.annotations.AfterTest;
@@ -40,6 +42,19 @@ public class TestScroll {
         scrollVertical(ScrollDirection.UP);
     }
 
+    @Test
+    public void scrollHorizontal() throws InterruptedException {
+        driver.findElement(AppiumBy.accessibilityId("Views")).click();
+
+        driver.findElement(AppiumBy.accessibilityId("Gallery")).click();
+
+        driver.findElement(AppiumBy.accessibilityId("1. Photos")).click();
+
+        WebElement firstImage = driver.findElements(By.className("android.widget.ImageView")).get(0);
+
+        swipeHorizontal(firstImage, -500, 0);
+    }
+
     private void scrollVertical(ScrollDirection direction) {
 
         int startX = size.width / 2;
@@ -65,6 +80,19 @@ public class TestScroll {
         driver.perform(Collections.singletonList(scroll));
     }
 
+    private void swipeHorizontal(WebElement element, int xOffset, int yOffset) {
+        PointerInput finger = new PointerInput(PointerInput.Kind.TOUCH, "finger");
+        Sequence swipe = new Sequence(finger, 0)
+                .addAction(finger.createPointerMove(Duration.ZERO,
+                        PointerInput.Origin.fromElement(element), 0, 0))
+                .addAction(finger.createPointerDown(PointerInput.MouseButton.LEFT.asArg()))
+                .addAction(finger.createPointerMove(Duration.ofMillis(600),
+                        PointerInput.Origin.fromElement(element), xOffset, yOffset))
+                .addAction(finger.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
+
+        driver.perform(Collections.singletonList(swipe));
+    }
+
     @AfterTest
     public void tearDown() {
         if (driver != null) {
@@ -73,6 +101,6 @@ public class TestScroll {
     }
 
     private enum ScrollDirection {
-        UP, DOWN
+        UP, DOWN, LEFT, RIGHT
     }
 }
